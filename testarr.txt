@@ -1,0 +1,2 @@
+amd,intc,tsla,aapl,googl,NVDA,IBM
+

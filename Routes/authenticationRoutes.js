@@ -1,13 +1,12 @@
 const MONGO_URI = "mongodb+srv://donut:donut@cluster0.qtom342.mongodb.net/loginGameDatabase";
 const port = 13756;
 const express = require('express');
-const password = "donut"
-const username = "donut";
 const mongoose = require('mongoose');
+const Stock = mongoose.model('stocks')
 const Account = mongoose.model('accounts');
 module.exports = app => {
 
- 
+
 //Routes
 app.post('/account/login',async (req,res)=>{
     //console.log(req.body)
@@ -50,6 +49,7 @@ app.post('/account/create',async (req,res)=>{
         username: rusername,
         password: rpassword,
         lastAuthentication: Date.now()
+
     });
     await newAccount.save();
     res.send(newAccount);
@@ -63,7 +63,25 @@ app.post('/account/create',async (req,res)=>{
    return;
 });
 
+app.get("/stocks/:stockname", async (req,res) => {
+    stockname = req.params.stockname.toUpperCase();
+    console.log('sssssss')
+    const projection = {"Global Quote": true, _id: false};
+    let retrievedStock = await Stock.findOne({Name:stockname},
+    projection);
+    if (retrievedStock != null){
+    res.json(retrievedStock);
+    //console.log(retrievedStock)
+    }
+    else{
+        res.status(404).send("Stock not found");
+    }
+});
+
+
 app.listen(port, ()=>{
+
     console.log("Listening on " + port);
 })
+
 }
