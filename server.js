@@ -13,6 +13,9 @@ mongoose.connect(MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: true});
 ///set up database models 
 require('./model/Account');
 require('./model/Stock');
+require('./model/SaveData')
+require('./model/Crypto')
+// require('./model/SaveData');
 //setup routes
 require('./Routes/authenticationRoutes')(app); 
 //const Account = mongoose.model('accounts');
