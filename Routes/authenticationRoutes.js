@@ -6,7 +6,8 @@ const Stock = mongoose.model("stocks");
 const Account = mongoose.model("accounts");
 const SaveData = mongoose.model("savedata");
 const Crypto = mongoose.model("cryptos");
-const argon2i = require('argon2-ffi').argon2i;
+// const argon2i = require('argon2-ffi').argon2i;
+const bcrypt = require('bcrypt');
 const cryptoAuth = require('crypto')
 
 module.exports = (app) => {
@@ -24,9 +25,8 @@ module.exports = (app) => {
     console.log(userAccount);
     
     if (userAccount != null) {
-      console.log(argon2i.verify(userAccount.password,rpassword))
-      argon2i.verify(userAccount.password,rpassword).then(async (success) => {
-        if(success){
+      bcrypt.compare(rpassword,userAccount.password).then(async (result) =>{
+          if(result){
           console.log('aaaaaaaaaaa')
           userAccount.lastAuthentication = Date.now();
           await userAccount.save();
@@ -40,14 +40,11 @@ module.exports = (app) => {
         }
       })
     }
+    else{
+        res.status(401).json({ error: "Invalid Credentials" });
+        return;
+    }
   });
-      // if (rpassword == userAccount.password) {
-      //   userAccount.lastAuthentication = Date.now();
-      //   await userAccount.save();
-      //   res.send(userAccount);
-      //   console.log("account exists, fetching");
-      //   return;
-      
 
 
   app.post("/account/create", async (req, res) => {
@@ -65,30 +62,17 @@ module.exports = (app) => {
     
     if (userAccount == null) {
       //create new account
-      console.log("creating new account");
-
-      // let accountSalt = null;
-      // let hashedPassword = null;
-      cryptoAuth.randomBytes(32,(err,salt)=>{
-        accountSalt = salt;
-        argon2i.hash(rpassword,salt).then(async (hash) => {
-          if(err){
-            console.log(err)
-          }
-          let newAccount = new Account({
-            username: rusername,
-            password: hash,
-            salt:salt,
-            lastAuthentication: Date.now(),
-          });
-          
-          await newAccount.save();
-          res.send(newAccount);
-          return;
-        //hashedPassword = hash;
-        })
-      })
+      bcrypt.hash(rpassword,10,async (err,hash) =>{
+        let newAccount = new Account({
+        username: rusername,
+        password: hash,
+        lastAuthentication: Date.now(),
+      });
       
+      await newAccount.save();
+      res.send(newAccount);
+      return;
+      })
 
 
     } 
