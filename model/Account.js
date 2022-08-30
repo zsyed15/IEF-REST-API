@@ -6,6 +6,7 @@ const accountScehema = new Schema({
     password: String,
     // saveData : String,
     lastAuthentication: Date,
+     salt: String,
     testjson: Object
 });
 mongoose.model('accounts',accountScehema);

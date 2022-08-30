@@ -6,6 +6,9 @@ const Stock = mongoose.model("stocks");
 const Account = mongoose.model("accounts");
 const SaveData = mongoose.model("savedata");
 const Crypto = mongoose.model("cryptos");
+const argon2i = require('argon2-ffi').argon2i;
+const cryptoAuth = require('crypto')
+
 module.exports = (app) => {
   //Routes
   app.post("/account/login", async (req, res) => {
@@ -21,19 +24,31 @@ module.exports = (app) => {
     console.log(userAccount);
     
     if (userAccount != null) {
-      if (rpassword == userAccount.password) {
-        userAccount.lastAuthentication = Date.now();
-        await userAccount.save();
-        res.send(userAccount);
-        console.log("account exists, fetching");
-        return;
-      }
+      console.log(argon2i.verify(userAccount.password,rpassword))
+      argon2i.verify(userAccount.password,rpassword).then(async (success) => {
+        if(success){
+          console.log('aaaaaaaaaaa')
+          userAccount.lastAuthentication = Date.now();
+          await userAccount.save();
+          res.send(userAccount);
+          console.log("account exists, fetching")
+          return;
+        }
+        else{
+          res.status(401).json({ error: "Invalid Credentials" });
+          return;
+        }
+      })
     }
-    
-    res.status(401).json({ error: "Invalid Credentials" });
-    return;
-  
-});
+  });
+      // if (rpassword == userAccount.password) {
+      //   userAccount.lastAuthentication = Date.now();
+      //   await userAccount.save();
+      //   res.send(userAccount);
+      //   console.log("account exists, fetching");
+      //   return;
+      
+
 
   app.post("/account/create", async (req, res) => {
     
@@ -51,14 +66,31 @@ module.exports = (app) => {
     if (userAccount == null) {
       //create new account
       console.log("creating new account");
-      let newAccount = new Account({
-        username: rusername,
-        password: rpassword,
-        lastAuthentication: Date.now(),
-      });
-      await newAccount.save();
-      res.send(newAccount);
-      return;
+
+      // let accountSalt = null;
+      // let hashedPassword = null;
+      cryptoAuth.randomBytes(32,(err,salt)=>{
+        accountSalt = salt;
+        argon2i.hash(rpassword,salt).then(async (hash) => {
+          if(err){
+            console.log(err)
+          }
+          let newAccount = new Account({
+            username: rusername,
+            password: hash,
+            salt:salt,
+            lastAuthentication: Date.now(),
+          });
+          
+          await newAccount.save();
+          res.send(newAccount);
+          return;
+        //hashedPassword = hash;
+        })
+      })
+      
+
+
     } 
     else {
         res.status(409).json({ error: "Username is taken" });

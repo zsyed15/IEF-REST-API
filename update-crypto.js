@@ -48,7 +48,7 @@ async function  updateCrypto(symbol){
 }
 async function asrun(){
     const contents = fs.readFileSync('./crypto.txt', 'utf-8');
-    const arr = contents.split('-USD,');
+    const arr = contents.split(',');
     console.log(arr)
     
     //Iterate through list of crypto
