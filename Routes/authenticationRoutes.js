@@ -1,19 +1,18 @@
 const port = 13756;
-//const { json } = require('body-parser');
-//const express = require('express');
+
 const mongoose = require("mongoose");
 const Stock = mongoose.model("stocks");
 const Account = mongoose.model("accounts");
 const SaveData = mongoose.model("savedata");
 const Crypto = mongoose.model("cryptos");
-// const argon2i = require('argon2-ffi').argon2i;
+
 const bcrypt = require('bcrypt');
 const cryptoAuth = require('crypto')
 
 module.exports = (app) => {
   //Routes
   app.post("/account/login", async (req, res) => {
-    //console.log(req.body)
+
     const { rusername, rpassword } = req.body;
     
     if (rusername == null || rpassword == null) {

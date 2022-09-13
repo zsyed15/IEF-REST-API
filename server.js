@@ -1,4 +1,4 @@
-const MONGO_URI = "mongodb+srv://donut:donut@cluster0.qtom342.mongodb.net/loginGameDatabase";
+const MONGO_URI = DB_URI;
 const port = 13756;
 const express = require('express');
 // const password = "donut"
@@ -15,8 +15,7 @@ require('./model/Account');
 require('./model/Stock');
 require('./model/SaveData')
 require('./model/Crypto')
-// require('./model/SaveData');
-//setup routes
+
 require('./Routes/authenticationRoutes')(app); 
 //const Account = mongoose.model('accounts');
 //Routes

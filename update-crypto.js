@@ -14,6 +14,7 @@ async function  updateCrypto(symbol){
     cryptoSymbol = null;
     if(symbol.includes("-USD")){
         cryptoSymbol = symbol.slice(0,-4);
+        console.log("HEREE")
     }
     else{
         cryptoSymbol = symbol;
@@ -22,10 +23,14 @@ async function  updateCrypto(symbol){
     let cryptoURL = `https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=${cryptoSymbol}&market=USD&apikey=3NI4WNPDVIQG9RPM`;
 
     let res = await axios.get(cryptoURL)
-
+    //console.log(res)
+    //console.log('here')
+    if(res.data == undefined || res.data == null){
+        return;
+    }
     let latestKey = Object.keys(res.data["Time Series (Digital Currency Daily)"])[0];
     let latestData = res.data["Time Series (Digital Currency Daily)"][latestKey];
-    
+
     let cryptoName = cryptoSymbol.toUpperCase();
     const {"4a. close (USD)":price,'5. volume':volume,'6. market cap (USD)':marketcap} = latestData;
     let condensedData = {
@@ -44,23 +49,25 @@ async function  updateCrypto(symbol){
     });
 
     let updateCryptoEntry =  await Crypto.updateOne(filter,{$set :{"Name": newCrypto.Name,"CryptoData": newCrypto.CryptoData}},options);
-
+    console.log(cryptoName)
 }
 async function asrun(){
     const contents = fs.readFileSync('./crypto.txt', 'utf-8');
     const arr = contents.split(',');
+    let lastelem = arr.length - 1;
+    arr[lastelem] = arr[lastelem].replace(/(\r\n|\n|\r)/gm, "");
     console.log(arr)
     
-    //Iterate through list of crypto
-    for (i = 0; i < arr.length;i++){
-      //pause every 5 iterations to account for crypto api rate limiting (5requests/minute).
-      if(i != 0 && i%5 == 0){
-      await new Promise(resolve => setTimeout(resolve,60000))
-      }
+    // //Iterate through list of crypto
+    // for (i = 0; i < arr.length;i++){
+    //   //pause every 5 iterations to account for crypto api rate limiting (5requests/minute).
+    //   if(i != 0 && i%5 == 0){
+    //   await new Promise(resolve => setTimeout(resolve,60000))
+    //   }
 
-      let x = await updateCrypto(arr[i]);
+    //   let x = await updateCrypto(arr[i]);
      
-      }
+    //   }
     }
     
     asrun();
