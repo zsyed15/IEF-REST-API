@@ -24,8 +24,9 @@ module.exports = (app) => {
     console.log(userAccount);
     
     if (userAccount != null) {
-      bcrypt.compare(rpassword,userAccount.password).then(async (result) =>{
-          if(result){
+      console.log(argon2i.verify(userAccount.password,rpassword))
+      argon2i.verify(userAccount.password,rpassword).then(async (success) => {
+        if(success){
           console.log('aaaaaaaaaaa')
           userAccount.lastAuthentication = Date.now();
           await userAccount.save();
@@ -39,11 +40,14 @@ module.exports = (app) => {
         }
       })
     }
-    else{
-        res.status(401).json({ error: "Invalid Credentials" });
-        return;
-    }
   });
+      // if (rpassword == userAccount.password) {
+      //   userAccount.lastAuthentication = Date.now();
+      //   await userAccount.save();
+      //   res.send(userAccount);
+      //   console.log("account exists, fetching");
+      //   return;
+      
 
 
   app.post("/account/create", async (req, res) => {
@@ -61,17 +65,30 @@ module.exports = (app) => {
     
     if (userAccount == null) {
       //create new account
-      bcrypt.hash(rpassword,10,async (err,hash) =>{
-        let newAccount = new Account({
-        username: rusername,
-        password: hash,
-        lastAuthentication: Date.now(),
-      });
-      
-      await newAccount.save();
-      res.send(newAccount);
-      return;
+      console.log("creating new account");
+
+      // let accountSalt = null;
+      // let hashedPassword = null;
+      cryptoAuth.randomBytes(32,(err,salt)=>{
+        accountSalt = salt;
+        argon2i.hash(rpassword,salt).then(async (hash) => {
+          if(err){
+            console.log(err)
+          }
+          let newAccount = new Account({
+            username: rusername,
+            password: hash,
+            salt:salt,
+            lastAuthentication: Date.now(),
+          });
+          
+          await newAccount.save();
+          res.send(newAccount);
+          return;
+        //hashedPassword = hash;
+        })
       })
+      
 
 
     } 
