@@ -1,8 +1,7 @@
 const MONGO_URI = DB_URI;
 const port = 13756;
 const express = require('express');
-// const password = "donut"
-// const username = "donut";
+
 const bodyParser = require('body-parser')
 const app = express();
 
@@ -15,7 +14,8 @@ require('./model/Account');
 require('./model/Stock');
 require('./model/SaveData')
 require('./model/Crypto')
-
+// require('./model/SaveData');
+//setup routes
 require('./Routes/authenticationRoutes')(app); 
 //const Account = mongoose.model('accounts');
 //Routes

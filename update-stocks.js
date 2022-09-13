@@ -1,4 +1,4 @@
-const MONGO_URI = "mongodb+srv://donut:donut@cluster0.qtom342.mongodb.net/loginGameDatabase";
+const MONGO_URI = DB_URI;
 var axios = require('axios');
 const mongoose = require('mongoose')
 require('./model/Stock');
@@ -8,7 +8,7 @@ const fs =  require('fs');
 
 async function  updateStock(symbol){
 
-  let stockUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=5SO0PDYFZVGM2FC4`
+  let stockUrl = STOCK_URL
  
   let res = await axios.get(stockUrl)
   //extracting relevant fields from response 
@@ -32,7 +32,7 @@ async function  updateStock(symbol){
 
 }  
 //Updates all stocks that are in predefined list @ ./testarr.txt
-async function asrun(){
+async function asyncrun(){
 const contents = fs.readFileSync('./stocks.txt', 'utf-8');
 
 const arr = contents.split(',');
@@ -51,7 +51,7 @@ for (i = 0; i < arr.length;i++){
   }
 }
 
-asrun();
+asyncrun();
 
 
 
